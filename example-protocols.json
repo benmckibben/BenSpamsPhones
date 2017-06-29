@@ -1,0 +1,17 @@
+{
+    "protocol1": 
+        {
+            "phone_number": "+10000000000",
+            "callback": "https://handler.twilio.com/twiml/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        },   
+    "protocol2":
+        {
+            "phone_number": "+10000000001",
+            "callback": "https://handler.twilio.com/twiml/YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"
+        },
+    "protocol3":
+        {
+            "phone_number": "+10000000002",
+            "callback": "https://handler.twilio.com/twiml/ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ"
+        }
+}
