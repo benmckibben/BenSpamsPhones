@@ -1,0 +1,4 @@
+Flask==0.12.2
+Flask-RESTful==0.3.6
+pusher==1.7.1
+twilio==6.4.1

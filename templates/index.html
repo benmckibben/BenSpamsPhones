@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<body onload="pageInit()">
+
+<title>Ben Spams Phones</title>
+
+<h1>Ben Spams Phones</h1>
+
+<div id="errors" style="color:red;">
+    <ul id="error-messages">
+    </ul>
+</div>
+
+Protocol:
+<select id="protocol-select" name="protocol">
+    <option value="null">Loading...</option>
+</select>
+<br>
+Target number:
+<input id="target-number">
+<br>
+<br>
+<button onclick="buttonPress()">Spam!</button>
+<br>
+<div id="success" style="color:green;">
+</div>
+<br>
+<br>
+<div id="updates">
+    <h2>Updates</h2>
+    <ul id ="update-messages">
+    </ul>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://js.pusher.com/4.0/pusher.min.js"></script>
+<script>
+    pusher = null;
+    socket_id = null;
+    channel_name = null;
+    update_channel = null;
+
+    function pusherConnectionSuccess() {
+        $('#update-messages').append('<li style="color:green;">Connected to live updates!</li>');
+    }
+
+    function pusherConnectionFailure() {
+        $('#update-messages').append('<li style="color:red;">Connection to live updates failed.</li>');
+    }
+
+    function pusherUpdateEventHandler(data) {
+        $('#update-messages').append('<li>' + data.message + '</li>');
+    }
+
+    function initPusher() {
+        pusher = new Pusher('{{ pusher_key }}', {
+            cluster: '{{ pusher_cluster }}',
+            encrypted: true,
+            authEndpoint: '{{ pusher_auth_endpoint }}'
+        });
+        pusher.connection.bind('connected', function() {
+            socket_id = pusher.connection.socket_id;
+            channel_name = 'private-' + socket_id.replace('.', '');
+            update_channel = pusher.subscribe(channel_name);
+            update_channel.bind('pusher:subscription_succeeded', pusherConnectionSuccess);
+            update_channel.bind('pusher:subscription_error', pusherConnectionFailure);
+            update_channel.bind('{{ update_event_name }}', pusherUpdateEventHandler);
+        });
+    }
+
+    function loadProtocols() {
+        var x = new XMLHttpRequest();
+        x.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                response = JSON.parse(this.responseText);
+                $('#protocol-select').empty();
+                $.each(response.protocols, function(key, value) {
+                    $('#protocol-select').append($('<option></option>')
+                    .attr('value', value).text(value));
+                })
+            }
+        };
+        x.open('GET', '/api/call', true);
+        x.send();
+    }
+
+    function pageInit() {
+        initPusher();
+        loadProtocols();
+    }
+
+    function sendCall(protocol, target_number) {
+        // construct the request parameters
+        var params = {'protocol': protocol, 'target_number': target_number}
+        if (update_channel.subscribed) {
+            params.update_callback = 'http://' + location.host + '{{ twilio_update_endpoint }}' + '/' + channel_name; // FIXME: is this the best way to make the callback url?
+            console.log(params.update_callback);
+        }
+
+        var x = new XMLHttpRequest();
+        x.onreadystatechange = function() {
+            if (this.readyState == 4) {
+                if (this.status == 500 || this.status == 400) {
+                    response = JSON.parse(this.responseText);
+                    $('#error-messages').append('<li>' + response.message + '</li>');
+                } else if (this.status == 200) {
+                    $('#success').text('Sent successfully!');
+                } else {
+                    $('#error-messages').append('<li>Unknown response: ' + this.status + '</li');
+                }
+            }
+        }
+        x.open('POST', '{{ call_endpoint }}', true);
+        x.setRequestHeader("Content-type", "application/json");
+        x.send(JSON.stringify(params));
+    }
+
+    function buttonPress() {
+        // clear errors, success, and update message
+        $('#error-messages').empty();
+        $('#success').text('');
+        $('#update-messages').empty();
+        error_messages = []
+        // check protocols loaded
+        if ($('#protocol-select').val() == 'null') {
+            error_messages.push('Invalid protocol');
+        }
+        // check target number is not blank
+        if ($('#target-number').val() == '') {
+            error_messages.push('Target number cannot be empty');
+        }
+        
+        // either display errors & abort or send the request
+        if (error_messages.length != 0) {
+            for (var i = 0; i < error_messages.length; i++) {
+                $('#error-messages').append('<li>' + error_messages[i] + '</li>');
+            }
+        } else {
+            sendCall($('#protocol-select').val(), $('#target-number').val());
+        }
+    }
+</script>
+
+</body>
+</html>
