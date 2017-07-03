@@ -103,7 +103,7 @@ class Caller(Resource):
             twilio_client.calls.create(**params)
         except Exception as e:
             abort(500, message=str(e))
-        return protocol_id, 200
+        return {'success': True, 'protocol': protocol_id}, 200
 
 # endpoint for Pusher authorization
 class PusherAuth(Resource):
@@ -135,7 +135,7 @@ class TwilioUpdates(Resource):
             pusher_client.trigger(channel_name, UPDATE_EVENT_NAME, {'message': message})
         except Exception as e:
             pass # TODO: some better error handling here
-        return call_status, 200
+        return {'success': True, 'call_status': call_status}, 200
 
 # Web interface
 @app.route('/')
