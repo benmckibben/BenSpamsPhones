@@ -85,7 +85,7 @@ Here are the valid routes for the app. The routes themselves can be easily chang
   Example:
   ``` shell
   $ curl http://localhost:9001/api/call -u "user:pass" -d "protocol=protocol1&target_number=0000000000" -X POST
-  "protocol1"
+  {"protocol": "protocol1", "success": true}
   ```
 * `POST /api/pusher_auth`: Endpoint for Pusher to carry out its [user authentication](https://pusher.com/docs/authenticating_users). Parameters:
    * `channel_name` (required): The name of the Pusher channel the client is trying to bind to.
