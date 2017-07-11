@@ -93,7 +93,7 @@ Target number:
         // construct the request parameters
         var params = {'protocol': protocol, 'target_number': target_number}
         if (update_channel.subscribed) {
-            params.update_callback = 'http://' + location.host + '{{ twilio_update_endpoint }}' + '/' + channel_name; // FIXME: is this the best way to make the callback url?
+            params.update_callback = location.protocol + '//' + location.host + '{{ twilio_update_endpoint }}' + '/' + channel_name;
         }
 
         var x = new XMLHttpRequest();

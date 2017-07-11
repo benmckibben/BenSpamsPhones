@@ -112,7 +112,6 @@ class PusherAuth(Resource):
     parser.add_argument('channel_name', required=True, help='Channel name not specified')
     parser.add_argument('socket_id', required=True, help='Socket id not specified')
 
-    @requires_auth
     def post(self):
         args = self.parser.parse_args()
         auth = pusher_client.authenticate(
