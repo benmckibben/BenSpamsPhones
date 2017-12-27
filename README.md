@@ -1,5 +1,5 @@
 # BenSpamsPhones
-
+[![Build Status](https://travis-ci.org/benmckibben/BenSpamsPhones.svg?branch=master)](https://travis-ci.org/benmckibben/BenSpamsPhones)
 ## Introduction
 A while ago, I wanted to familiarize myself with [Twilio](https://www.twilio.com/), so I bought a couple of phone numbers and set them up so that when they are called, a song (a different one for each number) will play. Then, I wanted to work with Twilio's Python library, so I wrote a little script that, when provided a target phone number and a "protocol", calls the target phone number with the Twilio phone number defined by the protocol and plays the song defined by the protocol. Then, I wanted an even easier interface for my tool that allows me to automatically call my friends with the audio to *Shrek Is Love, Shrek Is Life* waiting on the other end of the line. And here we are.
 
